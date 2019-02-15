@@ -61,9 +61,7 @@ const app = function () {
 		page.itemtree = $('#tree1');
     	
 		if (_initializeSettings()) {
-      document.getElementById('test').addEventListener('click', doTest, false);
       _renderPage();
-      _adjustH5Pstyle();
 		}
 	}
 	
@@ -78,32 +76,9 @@ const app = function () {
 	// page rendering
 	//-----------------------------------------------------------------------------
 	function _renderPage() {
-    $('#tree1').tree({data: hierarchy});
+    $('#hierarchy').tree({data: hierarchy});
 	}	
-  
-  function doTest() {
-    _adjustH5Pstyle();
-  }
-  
-  function iframeRef( frameRef ) {
-    console.log(frameRef.id);
-      return frameRef.contentWindow
-          ? frameRef.contentWindow.document
-          : frameRef.contentDocument
-  }
 
-  function _adjustH5Pstyle() {
-    var inside = iframeRef( document.getElementById('iframeH5P') ); 
-    /*
-    var elemIframe = document.getElementById('iframeH5P');
-    console.log('id=' + elemIframe.id);
-    console.log(elemIframe.contenDocument);
-    var y = (elemIframe.contentWindow || elemIframe.contentDocument);
-    if (y.document)y = y.document;
-    y.body.style.backgroundColor = "red";
-    */
-  }
-  
 	return {
 		init: init
  	};

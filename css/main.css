@@ -18,10 +18,25 @@ body {
 	font-size: 14px;
 }
 
+.row {
+  margin-top: 10px;
+}
+
 .col {
   border: 1px solid var(--very-light-gray);
 }
 
-.h5p-question {
-  color: red;
+#instructions {
+  font-size: 14px;
+  border-radius: 6px;
+  color: var(--MV-white);
+  background-color: var(--MV-light-teal);
+}
+
+#hierarchy {
+  
+}
+
+#quiz {
+  padding-top: 16px;
 }
