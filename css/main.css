@@ -30,24 +30,31 @@ body {
 }
 
 .controls {
-  border: none;
+  color: var(--MV-white);
+  background-color: var(--MV-light-teal);
+  border-radius: 6px;
+  padding: 2px 6px 0px 6px; 
 }
 
 .control-button {
-  color: var(--MV-white);
-  background-color: var(--MV-light-teal);
-  border: 2px solid var(--MV-white);
+  color: var(--MV-light-teal);
+  background-color: var(--MV-white);
+  border: 2px solid var(--MV-light-teal);
   border-radius: 6px;
 }
 
 .control-button:disabled, .control-button:hover:disabled {
   color: var(--very-light-gray);
   background-color: var(--MV-light-gray);
-  border: 2px solid var(--MV-white);
+  border: 2px solid var(--MV-light-teal);
 }
 
 .control-button:hover {
   border: 2px solid var(--blue);
+}
+
+#divRestartExplore {
+  visibility: hidden;
 }
 
 #btnRestartExplore {
@@ -85,8 +92,12 @@ span.selected-explore-file {
   padding: 0px 4px 0px 2px;
 }
 
-li.explore-display {
+.explore-display {
   margin-bottom: 10px;
+}
+
+.explore-display-title {
+  font-weight: bold;
 }
 
 .pathbox {
@@ -112,7 +123,12 @@ li.explore-display {
   font-style: italics;
 }
 
-#hierarchy {}
+#hierarchyContainer {}
+
+.hierarchy-label {
+  font-weight: bold;
+  margin-top: 6px;
+}
 
 #explore {
   visibility: hidden;

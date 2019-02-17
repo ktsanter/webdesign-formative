@@ -14,9 +14,10 @@
 <body class="mv-colorscheme">
 	<div id="contents" class='container-fluid'>	
     <div class='row'>
-      <div class='controls col col-md-3'>
+      <div class='controls col col-md-3 controls-group'>
+        <span> Choose: </span>
         <button id='btnExplore' class='control-button' title='explore relative pathing'> explore </button>
-        <button id='btnQuiz' class='control-button' title='take a practice quiz'> practice quiz </button>        
+        <button id='btnQuiz' class='control-button' title='take a practice quiz'> quiz </button>        
       </div>
       
       <div id="instructions" class='col col-md-9'>
@@ -24,17 +25,24 @@
           <span class='emphasis'>explore</span>: use the file and folder structure to explore relative pathing
         </span>      
         <span id='instructions1'>
-          <span class='emphasis'>practice quiz</span>: Use the folder and file folder structure to help answer the questions.
+          <span class='emphasis'>practice quiz</span>: Use the file and folder structure to help answer the questions.
         </span>
       </div>
     </div>
     
 		<div class='row'>
-			<div id='hierarchy' class='col col-md-3'></div>
+			<div id='hierarchyContainer' class='col col-md-3'>
+        <div id='hierarchyLabel' class='hierarchy-label'> Files and folders </div>
+        <div id='hierarchy'> </div>
+      </div>
 			
 			<div class='col col-md-9'>
-        <button id="btnRestartExplore" class='control-button'> start over </button>
+        <div id='titleExplore' class="explore-display explore-display-title">
+          Explore the relative path between a folder and a file.
+          <span id='containerRestartExplore'><button id="btnRestartExplore" class='control-button'> start over </button></span>
+        </div>
         <div id='explore'> </div>
+        
         
         <div id='quiz'>
           <iframe id="iframeH5P"

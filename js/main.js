@@ -8,7 +8,9 @@ const app = function () {
     quizbutton: null,
     instructions: {},
     explore: null,
+    titleexplore: null,
     restartexplorebutton: null,
+    restartexplorebuttoncontainer: null,
     quiz: null
 	};
   
@@ -86,7 +88,9 @@ const app = function () {
     page.quizbutton = document.getElementById('btnQuiz');
     page.instructions[ACTIVITY_EXPLORE] = document.getElementById('instructions0');
     page.instructions[ACTIVITY_QUIZ] = document.getElementById('instructions1');
+    page.titleexplore = document.getElementById('titleExplore');
     page.restartexplorebutton = document.getElementById('btnRestartExplore');
+    page.restartexplorebuttoncontainer = document.getElementById('containerRestartExplore');
     page.explore = document.getElementById('explore');
     page.quiz = document.getElementById('quiz');
     	
@@ -111,7 +115,6 @@ const app = function () {
       data: hierarchy,
       autoOpen: true
     });
-    var elemTree = document.getElementById('hierarchy');
     
     page.itemtree.on('tree.select', function(e) {_treeSelectHandler(e);} );
     page.explorebutton.addEventListener('click', _handleExploreClick, false);
@@ -130,11 +133,14 @@ const app = function () {
     if (settings.activity == ACTIVITY_EXPLORE) {
       page.explore.style.visibility = 'visible';
       page.quiz.style.visibility = 'hidden';
-      page.restartexplorebutton.style.display = 'inline';
+      //page.restartexplorebutton.style.display = 'inline';
+      page.titleexplore.style.display = 'inline';
+
     } else {
       page.explore.style.visibility = 'hidden';
       page.quiz.style.visibility = 'visible';
-      page.restartexplorebutton.style.display = 'none';
+      //page.restartexplorebutton.style.display = 'none';
+      page.titleexplore.style.display = 'none';
     }
   }
   
@@ -152,16 +158,18 @@ const app = function () {
   }
   
   function _exploreDisplay() {  
+    var showRestartButton = false;
     var message = '<div id="displayMessage">';
     
     if (settings.explorestage == EXPLORE_SELECTSOURCE) {
-      message += 'Click on a folder to begin the path';
+      message += 'Next step: click on a folder to begin the path...';
       
     } else if (settings.explorestage == EXPLORE_SELECTDEST) {
       message += '<ul>'
       message += '<li class="explore-display">The relative path begins at the folder <div class="selected-explore-folder-display">' + settings.selectedfolder.name + '</div></li>';
       message += '</ul>';
-      message += 'Click on a file to end the path';
+      message += 'Next step: click on a file to end the path...';
+      showRestartButton = true;
       
     } else if (settings.explorestage == EXPLORE_COMPLETE) {
       var relativePath = _getRelativePath(settings.selectedfolder, settings.selectedfile);
@@ -170,6 +178,7 @@ const app = function () {
       message += '<li class="explore-display">The relative path ends with the file <div class="selected-explore-file-display">' + settings.selectedfile.name + '</div></li>';
       message += '</ul>';
       message += 'Hover over this box to see the relative path <span class="pathbox">' + relativePath + '</span>';
+      showRestartButton = true;
       
     } else {
       message += 'Error: unexpected explore stage = (' + settings.explorestage + ')';
@@ -178,6 +187,8 @@ const app = function () {
     message += '</div>';
     
     page.explore.innerHTML = message;
+    
+    _showRestartExploreButton(showRestartButton);
   }
   
   function _addClassToNode(node, className) {
@@ -208,6 +219,7 @@ const app = function () {
     var curNode = fileNode;
     var status = '';
     
+    // work backwards from tree until folder is matched or root reachd
     while (!done) {
       arrPath.unshift(curNode);
       setPath.add(curNode.id);
@@ -225,10 +237,10 @@ const app = function () {
       }
     }
     
-    if (status == 'matchedfolder') {
-      arrForwardtrack = arrPath;
+    if (status == 'matchedfolder') { 
+      arrForwardtrack = arrPath;  // no backtracking from folder necessary
       
-    } else {
+    } else {  // work backward from folder until common ancestor found
       done = false;
       var curNode = folderNode.parent;
 
@@ -240,7 +252,8 @@ const app = function () {
           curNode = curNode.parent;
         }
       }
-
+      
+      // begin path by moving "up" to common ancestor
       for (var i = 0; i < arrBacktrack.length; i++) {
         path += '../';
       }
@@ -248,12 +261,21 @@ const app = function () {
       arrForwardtrack = objPath[curNode.id].slice(1);
     }
 
+    // complete path by moving "down" to file
     for (var i = 0; i < arrForwardtrack.length; i++) {
       if (i > 0) path += '/';
       path += arrForwardtrack[i].name;
     }
 
     return path;
+  }
+  
+  function _showRestartExploreButton(show) {
+    if (show) {
+      page.restartexplorebuttoncontainer.style.visibility = 'visible';
+    } else {
+      page.restartexplorebuttoncontainer.style.visibility = 'hidden';
+    }
   }
   
 	//------------------------------------------------------------------
