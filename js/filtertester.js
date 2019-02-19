@@ -1,5 +1,5 @@
 //
-// TODO: sync sliders with params values after setting defaults
+// TODO: handle color selection
 //
 const app = function () {		
 	const page = {
@@ -9,9 +9,9 @@ const app = function () {
 
   const settings = {
     imageurls: [
-      "images/penguin.jpg",
-      "images/mountain.jpg",
-      "images/eiffeltower.jpg"
+      {url: "images/penguin.jpg", width: 210},
+      { url: "images/mountain.jpg", width: 400},
+      {url: "images/eiffeltower.jpg", width: 310}
     ],
     
     filterclasses: [
@@ -127,9 +127,10 @@ const app = function () {
 	//-----------------------------------------------------------------------------
 	function _renderPage() {
     page.contents.appendChild(_makeImageContainer());
-    page.contents.appendChild(_makeFilterContainer());
     page.contents.appendChild(_makeFilterTextContainer());
+    page.contents.appendChild(_makeFilterContainer());
 
+    _setDefaultFilterValues();
     page.imagebutton[0].click();  // trigger loading of image
   }	
   
@@ -137,10 +138,12 @@ const app = function () {
     var elemContainer = _makeDiv('image-container', []);
     var elemDiv = _makeDiv('',[]);
     var elemImage = _makeImg('image', []);
-    elemDiv.appendChild(elemImage);
-    elemContainer.appendChild(elemDiv);
-    page.imageelement = elemImage;
     
+    elemDiv.appendChild(elemImage);
+    page.imageelement = elemImage; 
+    elemContainer.appendChild(elemDiv);    
+    
+    elemDiv = _makeDiv('', []);
     page.imagebutton = [];
     for (var i = 0; i < 3; i++) {
       var id = 'image_select' + i;
@@ -154,8 +157,11 @@ const app = function () {
       elemSpan.innerHTML = 'image ' + (i + 1);
       elemLabel.appendChild(elemRadio);
       elemLabel.appendChild(elemSpan);
-      elemContainer.appendChild(elemLabel);
+      elemDiv.appendChild(elemLabel);
     }
+    elemContainer.appendChild(elemDiv);
+    
+    settings.imagecontainer = elemContainer;
         
     return elemContainer;
   }
@@ -163,16 +169,17 @@ const app = function () {
   function _makeFilterContainer() {
     var elemContainer = _makeDiv('filter-container', []);
  
-    var elemDefaultsButton = _makeButton('btnDefaults', ['control-button'], 'defaults', 'set filters to default values', _handleDefaultsButton); 
-    elemContainer.appendChild(elemDefaultsButton);
-    
     var elemTable = document.createElement('table');
     elemContainer.appendChild(elemTable);
     
     for (var i = 0; i < settings.filtersettings.length; i++) {
       elemTable.appendChild(_makeFilterSelectionRow(settings.filtersettings[i], i));
+      var params = settings.filtersettings[i].params;
     }
-   
+    
+    var elemDefaultsButton = _makeButton('btnDefaults', ['control-button'], 'defaults', 'set filters to default values', _handleDefaultsButton); 
+    elemContainer.appendChild(elemDefaultsButton);    
+
     return elemContainer;
   }
 
@@ -192,13 +199,17 @@ const app = function () {
     for (var i = 0; i < filterSetting.params.length; i++) {
       var param = filterSetting.params[i];
       elemCell = document.createElement('td');
+      var rId = 'filter_paramcontrol' + ('00' + index).slice(-2) + '_' + ('00' + i).slice(-2);
       if (param.color) {
-        elemCell.innerHTML = 'color';
+        var elemColor = _makeColorSelector(rId, [], param.title, rId, param.val);
+        elemColor.oninput = function() { _handleColorChange(this); };
+        settings.filtersettings[index].params[i].controlElement = elemColor;
+        elemCell.appendChild(elemColor);
         
       } else {  
-        var rId = 'filter_paramcontrol' + ('00' + index).slice(-2) + '_' + ('00' + i).slice(-2);
         var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.val);
         elemRange.oninput = function() { _handleRangeChange(this); };
+        settings.filtersettings[index].params[i].controlElement = elemRange;
         elemCell.appendChild(elemRange);
       }
 
@@ -212,12 +223,14 @@ const app = function () {
     var elemContainer = _makeDiv('filter-text-container', []);
        
     var elemContainerTitle = _makeSpan('filter-text-container-title', []);
-    elemContainerTitle.innerHTML = 'filter text: ';
+    elemContainerTitle.innerHTML = 'filter settings: ';
     elemContainer.appendChild(elemContainerTitle);
 
     var elemContainerContents = _makeSpan('filter-text-container-contents', []);
     page.filtertext = elemContainerContents;
     elemContainer.appendChild(elemContainerContents);
+    
+    settings.filtertextcontainer = elemContainer;
    
     return elemContainer;
   }
@@ -226,7 +239,8 @@ const app = function () {
   // image and filtering functions 
   //---------------------------------------------------------------
   function _loadImage(n) {
-    page.imageelement.src = settings.imageurls[n];
+    page.imageelement.src = settings.imageurls[n].url;
+    settings.filtertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
   }
 
   function _setDefaultFilterValues() {
@@ -235,40 +249,43 @@ const app = function () {
       var params = settings.filtersettings[i].params;
       switch (name) {
         case 'blur':
-          params[0] = 0;  // no blur
+          params[0].val = 0;  // no blur
           break;
         case 'brightness':
-          params[0] = 100;  // no adjustment
+          params[0].val = 100;  // no adjustment
           break;
         case 'contrast':
-          params[0] = 100;  // no adjustment
+          params[0].val = 100;  // no adjustment
           break;
         case 'drop-shadow':
-          params[0] = 0;  // no horizontal shadow
-          params[1] = 0;  // no vertical shadow
-          params[2] = 0;  // no blur effect
-          params[3] = "#000000" // black
+          params[0].val = 0;  // no horizontal shadow
+          params[1].val = 0;  // no vertical shadow
+          params[2].val = 0;  // no blur effect
+          params[3].val = "#000000" // black
           break;
         case 'grayscale':
-          params[0] = 0;  // no effect
+          params[0].val = 0;  // no effect
           break;
         case 'hue-rotate':
-          params[0] = 0;  // no effect
+          params[0].val = 0;  // no effect
           break;
         case 'invert':
-          params[0] = 0; // no effect
+          params[0].val = 0; // no effect
           break;
         case 'opacity':
-          params[0] = 100; // no transparency
+          params[0].val = 100; // no transparency
           break;
         case 'saturate':
-          params[0] = 100; // no effect
+          params[0].val = 100; // no effect
           break;
         case 'sepia':
-          params[0] = 0;  // no effect;
+          params[0].val = 0;  // no effect;
           break;
       }
-      settings.filtersettings[i].params = params;
+      
+      for (var j=0; j < params.length; j++) {
+        params[j].controlElement.value = params[j].val;
+      }
     }
   }
   
@@ -320,6 +337,10 @@ const app = function () {
     var paramIndex = indexInfo.slice(-2) * 1;
     settings.filtersettings[filterIndex].params[paramIndex].val = elem.value;
     _applySelectedFilters();
+  }
+  
+  function _handleColorChange(elem) {
+    _handleRangeChange(elem);
   }
    
   function _handleDefaultsButton() {
@@ -396,6 +417,18 @@ const app = function () {
     elemRange.value = value;
     
     return elemRange;
+  }
+  
+  function _makeColorSelector(id, classList, title, name, value) {
+    var elemColor = document.createElement('input');
+    if (id && id != '') elemColor.id = id;
+    _addClassListToElement(elemColor, classList);
+    elemColor.type = 'color';
+    elemColor.title = title;
+    elemColor.name = name;
+    elemColor.value = value;
+    
+    return elemColor;
   }
 
   function _makeButton(id, classList, label, title, listener) {
