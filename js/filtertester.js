@@ -1,5 +1,8 @@
 //
-// TODO: handle color selection
+// TODO: add titles for controls
+// TODO: build default vals into control objects for filtersettings and bordersettings
+// TODO: move image selection above settings text
+// TODO: handle border radius vs border
 //
 const app = function () {		
 	const page = {
@@ -9,9 +12,9 @@ const app = function () {
 
   const settings = {
     imageurls: [
-      {url: "images/penguin.jpg", width: 210},
-      { url: "images/mountain.jpg", width: 400},
-      {url: "images/eiffeltower.jpg", width: 310}
+      {url: "images/penguin.jpg", width: 100},
+      { url: "images/mountain.jpg", width: 310},
+      {url: "images/eiffeltower.jpg", width: 240}
     ],
     
     filterclasses: [
@@ -100,7 +103,26 @@ const app = function () {
           {val: 100, suffix: "%", minval: 0, maxval: 100, title: "add title"}
         ]
       }
+    ], 
+        
+    bordersettings: [
+      { 
+        name: "border", 
+        params: [
+          {val: 1, suffix: "px", minval: 0, maxval: 10, title: "border width"},
+            // need dropdown for "solid", dashed, etc.
+          {val: "#000000", suffix: "", color: true, title: "border color"}
+        ],                
+      },
+      
+      {
+        name: "radius",
+        params: [
+          {val: 0, suffix: "px", minval: 0, maxval: 20, title: "radius size"}
+        ]
+      }
     ]
+ 
   };
 
   //---------------------------------------
@@ -128,7 +150,10 @@ const app = function () {
 	function _renderPage() {
     page.contents.appendChild(_makeImageContainer());
     page.contents.appendChild(_makeFilterTextContainer());
+    page.contents.appendChild(_makeBorderTextContainer());
+    
     page.contents.appendChild(_makeFilterContainer());
+    page.contents.appendChild(_makeBorderContainer());
 
     _setDefaultFilterValues();
     page.imagebutton[0].click();  // trigger loading of image
@@ -166,63 +191,10 @@ const app = function () {
     return elemContainer;
   }
     
-  function _makeFilterContainer() {
-    var elemContainer = _makeDiv('filter-container', []);
- 
-    var elemTable = document.createElement('table');
-    elemContainer.appendChild(elemTable);
-    
-    for (var i = 0; i < settings.filtersettings.length; i++) {
-      elemTable.appendChild(_makeFilterSelectionRow(settings.filtersettings[i], i));
-      var params = settings.filtersettings[i].params;
-    }
-    
-    var elemDefaultsButton = _makeButton('btnDefaults', ['control-button'], 'defaults', 'set filters to default values', _handleDefaultsButton); 
-    elemContainer.appendChild(elemDefaultsButton);    
-
-    return elemContainer;
-  }
-
-  function _makeFilterSelectionRow(filterSetting, index) {
-    var elemRow = document.createElement('tr');
- 
-    var elemCell = document.createElement('td');
-    var elemCheckbox = _makeCheckbox('filter_select' + ('00' + index).slice(-2), ['filter-select'], 'filter', index);
-    elemCheckbox.addEventListener('change', function(e) { _handleFilterSelection(e); });
-    elemCell.appendChild(elemCheckbox);
-    
-    var elemSpan = _makeSpan('', []);
-    elemSpan.innerHTML = filterSetting.name;
-    elemCell.appendChild(elemSpan);
-    elemRow.appendChild(elemCell);
-    
-    for (var i = 0; i < filterSetting.params.length; i++) {
-      var param = filterSetting.params[i];
-      elemCell = document.createElement('td');
-      var rId = 'filter_paramcontrol' + ('00' + index).slice(-2) + '_' + ('00' + i).slice(-2);
-      if (param.color) {
-        var elemColor = _makeColorSelector(rId, [], param.title, rId, param.val);
-        elemColor.oninput = function() { _handleColorChange(this); };
-        settings.filtersettings[index].params[i].controlElement = elemColor;
-        elemCell.appendChild(elemColor);
-        
-      } else {  
-        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.val);
-        elemRange.oninput = function() { _handleRangeChange(this); };
-        settings.filtersettings[index].params[i].controlElement = elemRange;
-        elemCell.appendChild(elemRange);
-      }
-
-      elemRow.appendChild(elemCell);
-    }    
-    
-    return elemRow;
-  }
-  
   function _makeFilterTextContainer() {
-    var elemContainer = _makeDiv('filter-text-container', []);
+    var elemContainer = _makeDiv('filter-text-container', ['text-container']);
        
-    var elemContainerTitle = _makeSpan('filter-text-container-title', []);
+    var elemContainerTitle = _makeSpan('filter-text-container-title', ['text-container-title']);
     elemContainerTitle.innerHTML = 'filter settings: ';
     elemContainer.appendChild(elemContainerTitle);
 
@@ -234,6 +206,117 @@ const app = function () {
    
     return elemContainer;
   }
+    
+  function _makeBorderTextContainer() {
+    var elemContainer = _makeDiv('border-text-container', ["text-container"]);
+       
+    var elemContainerTitle = _makeSpan('border-text-container-title', ["text-container-title"]);
+    elemContainerTitle.innerHTML = 'border settings: ';
+    elemContainer.appendChild(elemContainerTitle);
+
+    var elemContainerContents = _makeSpan('border-text-container-contents', []);
+    page.bordertext = elemContainerContents;
+    elemContainer.appendChild(elemContainerContents);
+    
+    settings.bordertextcontainer = elemContainer;
+   
+    return elemContainer;
+  }  
+
+  function _makeFilterContainer() {
+    var elemContainer = _makeDiv('filter-container', []);
+    
+    var elemTitle = _makeSpan('filter-container-title', []);
+    elemTitle.innerHTML = 'filters';
+    elemContainer.appendChild(elemTitle);
+    
+    var elemDefaultsButton = _makeButton('btnFilterDefaults', ['control-button'], 'defaults', 'set filters to default values', _handleFilterDefaultsButton); 
+    elemContainer.appendChild(elemDefaultsButton);    
+    
+    var elemTable = document.createElement('table');
+    elemContainer.appendChild(elemTable);
+    
+    for (var i = 0; i < settings.filtersettings.length; i++) {
+      elemTable.appendChild(_makeSelectionRow(settings.filtersettings[i], i, 'filter'));
+      var params = settings.filtersettings[i].params;
+    }
+
+    return elemContainer;
+  }
+      
+  function _makeBorderContainer() {
+    var elemContainer = _makeDiv('border-container', []);
+    
+    var elemTitle = _makeSpan('border-container-title', []);
+    elemTitle.innerHTML = 'borders';
+    elemContainer.appendChild(elemTitle);
+    
+    var elemDefaultsButton = _makeButton('btnBorderDefaults', ['control-button'], 'defaults', 'set borders to default values', _handleBorderDefaultsButton); 
+    elemContainer.appendChild(elemDefaultsButton);    
+    
+    var elemTable = document.createElement('table');
+    elemContainer.appendChild(elemTable);
+    
+    for (var i = 0; i < settings.bordersettings.length; i++) {
+      elemTable.appendChild(_makeSelectionRow(settings.bordersettings[i], i, 'border'));
+      var params = settings.bordersettings[i].params;
+    }
+    
+    return elemContainer;
+  }  
+  
+  function _makeSelectionRow(setting, index, rowtype) {
+    var elemRow = document.createElement('tr');
+ 
+    var elemCell = document.createElement('td');
+    if (rowtype == 'filter') {
+      var elemCheckbox = _makeCheckbox('filter_select' + ('00' + index).slice(-2), ['filter-select'], 'filter', index);
+      elemCheckbox.addEventListener('change', function(e) { _handleFilterSelection(e); });
+    } else {
+      var elemCheckbox = _makeCheckbox('border_select' + ('00' + index).slice(-2), ['border-select'], 'border', index);
+      elemCheckbox.addEventListener('change', function(e) { _handleBorderSelection(e); });
+    }
+    elemCell.appendChild(elemCheckbox);
+    
+    var elemSpan = _makeSpan('', []);
+    elemSpan.innerHTML = setting.name;
+    elemCell.appendChild(elemSpan);
+    elemRow.appendChild(elemCell);
+    
+    for (var i = 0; i < setting.params.length; i++) {
+      var param = setting.params[i];
+      elemCell = document.createElement('td');
+      
+      var idPrefix = 'filter_paramcontrol';
+      if (rowtype == 'border') idPrefix = 'border_paramcontrol';
+      var rId = idPrefix + ('00' + index).slice(-2) + '_' + ('00' + i).slice(-2);
+      
+      if (param.color) {
+        var elemColor = _makeColorSelector(rId, [], param.title, rId, param.val);
+        elemColor.oninput = function() { _handleColorChange(this); };
+        if (rowtype == 'filter') {
+          settings.filtersettings[index].params[i].controlElement = elemColor;
+        } else {
+          settings.bordersettings[index].params[i].controlElement = elemColor;
+        }
+        elemCell.appendChild(elemColor);
+        
+      } else {  
+        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.val);
+        elemRange.oninput = function() { _handleRangeChange(this); };
+        if (rowtype == 'filter') {
+          settings.filtersettings[index].params[i].controlElement = elemRange;
+        } else {
+          settings.bordersettings[index].params[i].controlElement = elemRange;
+        }
+        elemCell.appendChild(elemRange);
+      }
+
+      elemRow.appendChild(elemCell);
+    }    
+    
+    return elemRow;
+  }  
   
   //---------------------------------------------------------------
   // image and filtering functions 
@@ -241,6 +324,7 @@ const app = function () {
   function _loadImage(n) {
     page.imageelement.src = settings.imageurls[n].url;
     settings.filtertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
+    settings.bordertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
   }
 
   function _setDefaultFilterValues() {
@@ -289,6 +373,15 @@ const app = function () {
     }
   }
   
+  function _setDefaultBorderValues() {
+    console.log('set default border values');
+  }
+  
+  function _applySelections() {
+    _applySelectedFilters();
+    _applySelectedBorders();
+  }
+  
   function _applySelectedFilters() {
     var filterString = '';
     var elems = document.getElementsByClassName('filter-select');
@@ -319,33 +412,79 @@ const app = function () {
     return filterString;
   }
   
+  function _applySelectedBorders() {
+    var borderString = '';
+    var elems = document.getElementsByClassName('border-select');
+    
+    for (var i = 0; i < elems.length; i++) {
+      if (elems[i].checked) {
+        borderString += _buildBorderString(settings.bordersettings[i]) + ' ';
+      }
+    }
+    
+    if (borderString ==  '') {
+      borderString = 'none';
+    } else {
+      borderString += 'solid';
+    }
+    page.bordertext.innerHTML = borderString;
+    
+    page.imageelement.style.border = borderString;
+  }
+  
+  function _buildBorderString(borderSetting) {
+    var borderString = '';
+    var params = borderSetting.params;
+    
+    for (var i = 0; i < params.length; i++) {
+      borderString += params[i].val + params[i].suffix + ' ';
+    }
+    
+    return borderString;
+  }  
+  
 	//------------------------------------------------------------------
 	// handlers
 	//------------------------------------------------------------------
   function _handleImageSelection(e) {
     _loadImage(e.target.value);
-    _applySelectedFilters();
+    _applySelections();
   }
   
   function _handleFilterSelection(e) {
-    _applySelectedFilters();
+    _applySelections();
+  }
+  
+  function _handleBorderSelection(e) {
+    _applySelections();
   }
   
   function _handleRangeChange(elem) {
     var indexInfo = elem.id.slice(-5);
     var filterIndex = indexInfo.slice(0,2) * 1;
     var paramIndex = indexInfo.slice(-2) * 1;
-    settings.filtersettings[filterIndex].params[paramIndex].val = elem.value;
-    _applySelectedFilters();
+
+    if (elem.id.indexOf('filter') == 0) {
+      settings.filtersettings[filterIndex].params[paramIndex].val = elem.value;
+    } else {
+      settings.bordersettings[filterIndex].params[paramIndex].val = elem.value;
+    }
+    _applySelections();
   }
   
   function _handleColorChange(elem) {
+    console.log(elem.id + ' ' + elem.value);
     _handleRangeChange(elem);
   }
    
-  function _handleDefaultsButton() {
+  function _handleFilterDefaultsButton() {
     _setDefaultFilterValues();
-    _applySelectedFilters();
+    _applySelections();
+  }
+  
+  function _handleBorderDefaultsButton() {
+    _setDefaultBorderValues();
+    _applySelections();
   }
   
 	//------------------------------------------------------------------
