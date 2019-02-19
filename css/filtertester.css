@@ -44,5 +44,32 @@ body {
 .image-select-label {}
 
 #filter-container {
-  margin-top: 10px; 
+  margin-top: 10px;
+  padding-top: 8px;
+  padding-left: 2px;
+}
+
+#filter-text-container {
+  margin-top: 8px;
+}
+
+#filter-text-container-title {
+  font-weight: bold;
+}
+
+.control-button {
+  color: var(--MV-white);
+  background-color: var(--MV-light-teal);
+  border: 2px solid var(--MV-light-teal);
+  border-radius: 6px;
+}
+
+.control-button:disabled, .control-button:hover:disabled {
+  color: var(--very-light-gray);
+  background-color: var(--MV-light-gray);
+  border: 2px solid var(--MV-light-teal);
+}
+
+.control-button:hover {
+  border: 2px solid var(--blue);
 }
