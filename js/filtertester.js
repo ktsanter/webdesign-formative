@@ -1,8 +1,4 @@
 //
-// TODO: add titles for controls
-// TODO: build default vals into control objects for filtersettings and bordersettings
-// TODO: move image selection above settings text
-// TODO: handle border radius vs border
 //
 const app = function () {		
 	const page = {
@@ -12,95 +8,82 @@ const app = function () {
 
   const settings = {
     imageurls: [
-      {url: "images/penguin.jpg", width: 100},
-      { url: "images/mountain.jpg", width: 310},
+      {url: "images/penguin.jpg", width: 160},
+      {url: "images/mountain.jpg", width: 310},
       {url: "images/eiffeltower.jpg", width: 240}
     ],
-    
-    filterclasses: [
-      "filter-blur",
-      "filter-hue-rotate",
-      "filter-opacity",
-      "filter-brightness",
-      "filter-contrast",
-      "filter-saturate",
-      "filter-drop-shadow",
-      "filter-grayscale",
-      "filter-invert",
-      "filter-sepia"
-    ],
-    
+
     filtersettings: [
       { 
         name: "blur", 
         params: [
-          {val: 3, suffix: "px", minval: 0, maxval: 20, title: "add title"}
+          {val: 3, suffix: "px", minval: 0, maxval: 20, title: "size of blur", defaultval: 0}
         ] 
       },
       
       { 
         name: "hue-rotate", 
         params: [
-          {val: 90, suffix: "deg", minval: 0, maxval: 360, title: "add title"}
+          {val: 90, suffix: "deg", minval: 0, maxval: 360, title: "degrees of rotation", defaultval: 0}
         ]
       },
       
       { 
         name: "opacity", 
         params: [
-          {val: 25, suffix: "%", minval: 0, maxval: 100, title: "add title"}
+          {val: 25, suffix: "%", minval: 0, maxval: 100, title: "0%=transparent, 100%=opaque", defaultval: 100}
         ]
       },
       
       { 
         name: "brightness", 
         params: [
-          {val: 50, suffix: "%", minval: 0, maxval: 200, title: "add title"}
+          {val: 50, suffix: "%", minval: 0, maxval: 200, title: "100% = original brightness", defaultval: 100}
         ]
       },
       
       { 
         name: "contrast", 
         params: [
-          {val: 150, suffix: "%", minval: 0, maxval: 200, title: "add title"}
+          {val: 150, suffix: "%", minval: 0, maxval: 200, title: "100% = original contrast", defaultval: 100}
         ]
       },
       
       { 
         name: "saturate", 
         params: [
-          {val: 50, suffix: "%", minval: 0, maxval: 200, title: "add title"}
+          {val: 50, suffix: "%", minval: 0, maxval: 200, title: "100% = original saturation", defaultval: 100}
         ]
       },
       
       {  
         name: "drop-shadow", 
         params: [
-          {val: -5, suffix: "px", minval: -10, maxval: 10, title: "add title"}, 
-          {val: -5, suffix: "px", minval: -10, maxval: 10, title: "add title"},
-          {val: 5, suffix: "px", minval: -10, maxval: 10, title: "add title"},
-          {val: "#000000", suffix: "", color: true, title: "add title"}
+          {val: -5, suffix: "px", minval: -10, maxval: 10, title: "horizontal", defaultval: 0}, 
+          {val: -5, suffix: "px", minval: -10, maxval: 10, title: "vertical", defaultval: 0},
+          {val: 5, suffix: "px", minval: -10, maxval: 10, title: "shadow blur", defaultval: 0},
+          {val: "#000000", suffix: "", color: true, title: "shadow color", defaultval: "#000000"}
         ]
       },
       
       { 
         name: "grayscale", 
         params: [
-          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "add title"}
+          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "0%=original, 100%=black & white", defaultval: 0}
         ]
       },
       
       { 
         name: "invert", 
         params: [
-          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "add title"}
+          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "0% = original", defaultval: 0}
         ]
       },
       
       { 
         name: "sepia", 
         params: [
-          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "add title"}
+          {val: 100, suffix: "%", minval: 0, maxval: 100, title: "0% = original", defaultval: 0}
         ]
       }
     ], 
@@ -109,20 +92,35 @@ const app = function () {
       { 
         name: "border", 
         params: [
-          {val: 1, suffix: "px", minval: 0, maxval: 10, title: "border width"},
-            // need dropdown for "solid", dashed, etc.
-          {val: "#000000", suffix: "", color: true, title: "border color"}
+          {val: 1, suffix: "px", minval: 0, maxval: 10, title: "border width", defaultval: 1},
+          {
+            val: "solid", suffix: "", 
+            dropdown: true, 
+            dropdownvals: ["dotted","dashed","solid","double","groove","ridge","inset","outset"],            
+            title: "border type - note many of these depend on the color and/or size settings",
+            defaultval: "solid"
+          },
+          {val: "#000000", suffix: "", color: true, title: "border color", defaultval: "#000000"}
         ],                
       },
       
       {
-        name: "radius",
+        name: "radius (all)",
         params: [
-          {val: 0, suffix: "px", minval: 0, maxval: 20, title: "radius size"}
+          {val: 0, suffix: "%", minval: 0, maxval: 100, title: "radius size", defaultval: 0}
         ]
-      }
-    ]
- 
+      },
+      
+      {
+        name: "radius (individual)",
+        params: [
+          {val: 0, suffix: "%", minval: 0, maxval: 100, title: "upper left radius size", defaultval: 0},
+          {val: 0, suffix: "%", minval: 0, maxval: 100, title: "upper right radius size", defaultval: 0},
+          {val: 0, suffix: "%", minval: 0, maxval: 100, title: "lower right radius size", defaultval: 0},
+          {val: 0, suffix: "%", minval: 0, maxval: 100, title: "lower left radius size", defaultval: 0}
+        ]
+      }    
+    ] 
   };
 
   //---------------------------------------
@@ -149,13 +147,16 @@ const app = function () {
 	//-----------------------------------------------------------------------------
 	function _renderPage() {
     page.contents.appendChild(_makeImageContainer());
+    page.contents.appendChild(_makeImageSelectionContainer());
     page.contents.appendChild(_makeFilterTextContainer());
     page.contents.appendChild(_makeBorderTextContainer());
+    page.contents.appendChild(_makeBorderRadiusTextContainer());
     
     page.contents.appendChild(_makeFilterContainer());
     page.contents.appendChild(_makeBorderContainer());
 
-    _setDefaultFilterValues();
+    _setDefaultValues(settings.filtersettings);
+    _setDefaultValues(settings.bordersettings);
     page.imagebutton[0].click();  // trigger loading of image
   }	
   
@@ -166,9 +167,15 @@ const app = function () {
     
     elemDiv.appendChild(elemImage);
     page.imageelement = elemImage; 
-    elemContainer.appendChild(elemDiv);    
-    
-    elemDiv = _makeDiv('', []);
+    elemContainer.appendChild(elemDiv); 
+
+    settings.imagecontainer = elemContainer;
+
+    return elemContainer;
+  }
+  
+  function _makeImageSelectionContainer() {
+    var elemContainer = _makeDiv('image-selection-container', []);
     page.imagebutton = [];
     for (var i = 0; i < 3; i++) {
       var id = 'image_select' + i;
@@ -182,12 +189,9 @@ const app = function () {
       elemSpan.innerHTML = 'image ' + (i + 1);
       elemLabel.appendChild(elemRadio);
       elemLabel.appendChild(elemSpan);
-      elemDiv.appendChild(elemLabel);
+      elemContainer.appendChild(elemLabel);
     }
-    elemContainer.appendChild(elemDiv);
-    
-    settings.imagecontainer = elemContainer;
-        
+       
     return elemContainer;
   }
     
@@ -195,7 +199,7 @@ const app = function () {
     var elemContainer = _makeDiv('filter-text-container', ['text-container']);
        
     var elemContainerTitle = _makeSpan('filter-text-container-title', ['text-container-title']);
-    elemContainerTitle.innerHTML = 'filter settings: ';
+    elemContainerTitle.innerHTML = 'filter: ';
     elemContainer.appendChild(elemContainerTitle);
 
     var elemContainerContents = _makeSpan('filter-text-container-contents', []);
@@ -211,7 +215,7 @@ const app = function () {
     var elemContainer = _makeDiv('border-text-container', ["text-container"]);
        
     var elemContainerTitle = _makeSpan('border-text-container-title', ["text-container-title"]);
-    elemContainerTitle.innerHTML = 'border settings: ';
+    elemContainerTitle.innerHTML = 'border: ';
     elemContainer.appendChild(elemContainerTitle);
 
     var elemContainerContents = _makeSpan('border-text-container-contents', []);
@@ -219,6 +223,23 @@ const app = function () {
     elemContainer.appendChild(elemContainerContents);
     
     settings.bordertextcontainer = elemContainer;
+   
+    return elemContainer;
+  }  
+
+    
+  function _makeBorderRadiusTextContainer() {
+    var elemContainer = _makeDiv('border-radius-text-container', ["text-container"]);
+       
+    var elemContainerTitle = _makeSpan('border-text-container-title', ["text-container-title"]);
+    elemContainerTitle.innerHTML = 'border-radius: ';
+    elemContainer.appendChild(elemContainerTitle);
+
+    var elemContainerContents = _makeSpan('border-radius-text-container-contents', []);
+    page.borderradiustext = elemContainerContents;
+    elemContainer.appendChild(elemContainerContents);
+    
+    settings.borderradiustextcontainer = elemContainer;
    
     return elemContainer;
   }  
@@ -292,7 +313,7 @@ const app = function () {
       var rId = idPrefix + ('00' + index).slice(-2) + '_' + ('00' + i).slice(-2);
       
       if (param.color) {
-        var elemColor = _makeColorSelector(rId, [], param.title, rId, param.val);
+        var elemColor = _makeColorSelector(rId, [], param.title, rId, param.defaultval);
         elemColor.oninput = function() { _handleColorChange(this); };
         if (rowtype == 'filter') {
           settings.filtersettings[index].params[i].controlElement = elemColor;
@@ -301,8 +322,18 @@ const app = function () {
         }
         elemCell.appendChild(elemColor);
         
-      } else {  
-        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.val);
+      } else if (param.dropdown) {
+        var elemDropdown = _makeDropdown(rId, [], param.title, param.dropdownvals, param.defaultval);
+        elemDropdown.addEventListener('change', function() { _handleDropdownChange(this); });
+        if (rowtype == 'filter') {
+          settings.filtersettings[index].params[i].controlElement = elemDropdown;
+        } else {
+          settings.bordersettings[index].params[i].controlElement = elemDropdown;
+        }
+        elemCell.appendChild(elemDropdown);
+        
+      }else {  
+        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.defaultval);
         elemRange.oninput = function() { _handleRangeChange(this); };
         if (rowtype == 'filter') {
           settings.filtersettings[index].params[i].controlElement = elemRange;
@@ -325,56 +356,19 @@ const app = function () {
     page.imageelement.src = settings.imageurls[n].url;
     settings.filtertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
     settings.bordertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
+    settings.borderradiustextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
   }
 
-  function _setDefaultFilterValues() {
-    for (var i = 0; i < settings.filtersettings.length; i++) {
-      var name = settings.filtersettings[i].name;
-      var params = settings.filtersettings[i].params;
-      switch (name) {
-        case 'blur':
-          params[0].val = 0;  // no blur
-          break;
-        case 'brightness':
-          params[0].val = 100;  // no adjustment
-          break;
-        case 'contrast':
-          params[0].val = 100;  // no adjustment
-          break;
-        case 'drop-shadow':
-          params[0].val = 0;  // no horizontal shadow
-          params[1].val = 0;  // no vertical shadow
-          params[2].val = 0;  // no blur effect
-          params[3].val = "#000000" // black
-          break;
-        case 'grayscale':
-          params[0].val = 0;  // no effect
-          break;
-        case 'hue-rotate':
-          params[0].val = 0;  // no effect
-          break;
-        case 'invert':
-          params[0].val = 0; // no effect
-          break;
-        case 'opacity':
-          params[0].val = 100; // no transparency
-          break;
-        case 'saturate':
-          params[0].val = 100; // no effect
-          break;
-        case 'sepia':
-          params[0].val = 0;  // no effect;
-          break;
-      }
+  function _setDefaultValues(settingsToChange) {
+    for (var i = 0; i < settingsToChange.length; i++) {
+      var params = settingsToChange[i].params;
+      console.log(params);
       
       for (var j=0; j < params.length; j++) {
+        params[j].val = params[j].defaultval;
         params[j].controlElement.value = params[j].val;
       }
     }
-  }
-  
-  function _setDefaultBorderValues() {
-    console.log('set default border values');
   }
   
   function _applySelections() {
@@ -414,22 +408,25 @@ const app = function () {
   
   function _applySelectedBorders() {
     var borderString = '';
+    var borderRadiusString = '';
     var elems = document.getElementsByClassName('border-select');
     
-    for (var i = 0; i < elems.length; i++) {
-      if (elems[i].checked) {
-        borderString += _buildBorderString(settings.bordersettings[i]) + ' ';
-      }
+    if (elems[0].checked) {
+      borderString = _buildBorderString(settings.bordersettings[0]);
+    }
+    if (elems[2].checked) {
+      borderRadiusString = _buildBorderString(settings.bordersettings[2]);
+    } else if (elems[1].checked) {
+      borderRadiusString = _buildBorderString(settings.bordersettings[1]);
     }
     
-    if (borderString ==  '') {
-      borderString = 'none';
-    } else {
-      borderString += 'solid';
-    }
+    if (borderString ==  '') borderString = 'none';
     page.bordertext.innerHTML = borderString;
     
+    page.borderradiustext.innerHTML = borderRadiusString;
+    
     page.imageelement.style.border = borderString;
+    page.imageelement.style.borderRadius = borderRadiusString;
   }
   
   function _buildBorderString(borderSetting) {
@@ -473,17 +470,32 @@ const app = function () {
   }
   
   function _handleColorChange(elem) {
-    console.log(elem.id + ' ' + elem.value);
     _handleRangeChange(elem);
   }
    
+  function _handleDropdownChange(elem) {
+    var indexInfo = elem.id.slice(-5);
+    var filterIndex = indexInfo.slice(0,2) * 1;
+    var paramIndex = indexInfo.slice(-2) * 1;
+    var borderControl = (elem.id.indexOf('border') == 0);
+    
+    if (elem.id.indexOf('filter') == 0) {
+      settings.filtersettings[filterIndex].params[paramIndex].val = elem.options[elem.selectedIndex].value;
+    } else {
+      settings.bordersettings[filterIndex].params[paramIndex].val = elem.options[elem.selectedIndex].value;
+    }
+    _applySelections();
+    
+    // console.log('border type change: ' + elem.selectedIndex + ' ' + elem.options[elem.selectedIndex].value);
+  }
+  
   function _handleFilterDefaultsButton() {
-    _setDefaultFilterValues();
+    _setDefaultValues(settings.filtersettings);
     _applySelections();
   }
   
   function _handleBorderDefaultsButton() {
-    _setDefaultBorderValues();
+    _setDefaultValues(settings.bordersettings);
     _applySelections();
   }
   
@@ -568,6 +580,24 @@ const app = function () {
     elemColor.value = value;
     
     return elemColor;
+  }
+  
+  function _makeDropdown(id, classList, title, valueList, defaultValue) {
+    var elemDropdown = document.createElement('select');
+    if (id && id != '') elemDropdown.id = id;
+    _addClassListToElement(elemDropdown, classList);
+    elemDropdown.title = title;
+
+    for (var i = 0; i < valueList.length; i++) {
+      var elemOption = document.createElement('option');
+      var value = valueList[i];
+      elemOption.value = value;
+      elemOption.text = value;
+      elemDropdown.appendChild(elemOption);
+      if (defaultValue == value) elemDropdown.selectedIndex = i;
+    }
+    
+    return elemDropdown;
   }
 
   function _makeButton(id, classList, label, title, listener) {
