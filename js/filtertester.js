@@ -8,9 +8,9 @@ const app = function () {
 
   const settings = {
     imageurls: [
-      {url: "images/penguin.jpg", width: 160},
-      {url: "images/mountain.jpg", width: 310},
-      {url: "images/eiffeltower.jpg", width: 240}
+      {url: "images/penguin.jpg"},
+      {url: "images/mountain.jpg"},
+      {url: "images/eiffeltower.jpg"}
     ],
 
     filtersettings: [
@@ -146,11 +146,18 @@ const app = function () {
 	// page rendering
 	//-----------------------------------------------------------------------------
 	function _renderPage() {
-    page.contents.appendChild(_makeImageContainer());
-    page.contents.appendChild(_makeImageSelectionContainer());
-    page.contents.appendChild(_makeFilterTextContainer());
-    page.contents.appendChild(_makeBorderTextContainer());
-    page.contents.appendChild(_makeBorderRadiusTextContainer());
+    var elemTopRow = _makeDiv('topRow', ['flex-container']);
+
+    var elemDiv = _makeDiv('all-image-containers', ['flex-container']);
+    elemDiv.appendChild(_makeImageContainer());
+    elemDiv.appendChild(_makeImageSelectionContainer());
+    elemTopRow.appendChild(elemDiv);
+    
+    //elemTopRow.appendChild(_makeImageContainer());
+    //elemTopRow.appendChild(_makeImageSelectionContainer());
+    
+    elemTopRow.appendChild(_makeResultTextContainer());
+    page.contents.appendChild(elemTopRow);
     
     page.contents.appendChild(_makeFilterContainer());
     page.contents.appendChild(_makeBorderContainer());
@@ -178,23 +185,59 @@ const app = function () {
     var elemContainer = _makeDiv('image-selection-container', []);
     page.imagebutton = [];
     for (var i = 0; i < 3; i++) {
-      var id = 'image_select' + i;
+      elemContainer.appendChild(_makeImageSelectionLabel(i, 'image ' + (i + 1)));
+    }
+    
+    var elemDiv = _makeDiv('upload-image-container', []);
+    var elemUploadOption = _makeImageSelectionLabel(3, '');
+    elemDiv.appendChild(elemUploadOption);
+
+    var elemFilepicker = _makeFilePicker('uploadFilePicker', ['inputfile'], 'choose image to upload', 'uploadFilePicker');
+    elemFilepicker.addEventListener('change', function() { _handleFilePicker(this); });
+    page.filepicker = elemFilepicker;
+    elemDiv.appendChild(elemFilepicker);
+    
+    var elemLabel = _makeLabel('', ['primary-button', 'filepicker']);
+    elemLabel.innerHTML = 'upload image';
+    elemLabel.htmlFor = 'uploadFilePicker';
+    elemDiv.appendChild(elemLabel);
+    
+    var elemUploadedFile = _makeSpan('uploadedFile', []);
+    elemUploadedFile.innerHTML = 'no file selected';
+    page.uploadedfile = elemUploadedFile;
+    elemDiv.appendChild(elemUploadedFile);
+    
+    elemContainer.appendChild(elemDiv);
+    
+    return elemContainer;
+  }
+  
+  function _makeImageSelectionLabel(n, labelText) {
+      var id = 'image_select' + n;
       var elemLabel = _makeLabel('', ['image-select-label']);
       
-      var elemRadio = _makeRadio(id, ['image-select'], 'image_select', i);
+      var elemRadio = _makeRadio(id, ['image-select'], 'image_select', n);
       elemRadio.addEventListener('change', function (e) { _handleImageSelection(e); });
       page.imagebutton.push(elemRadio);
       
       var elemSpan = _makeSpan('', []);
-      elemSpan.innerHTML = 'image ' + (i + 1);
+      elemSpan.innerHTML = labelText;
       elemLabel.appendChild(elemRadio);
       elemLabel.appendChild(elemSpan);
-      elemContainer.appendChild(elemLabel);
-    }
-       
-    return elemContainer;
+      
+      return elemLabel;
   }
     
+  function _makeResultTextContainer() {
+    var elemContainer = _makeDiv('result-text-container', []);
+    
+    elemContainer.appendChild(_makeFilterTextContainer());
+    elemContainer.appendChild(_makeBorderTextContainer());
+    elemContainer.appendChild(_makeBorderRadiusTextContainer());
+    
+    return elemContainer;
+  }
+  
   function _makeFilterTextContainer() {
     var elemContainer = _makeDiv('filter-text-container', ['text-container']);
        
@@ -251,7 +294,7 @@ const app = function () {
     elemTitle.innerHTML = 'filters';
     elemContainer.appendChild(elemTitle);
     
-    var elemDefaultsButton = _makeButton('btnFilterDefaults', ['control-button'], 'defaults', 'set filters to default values', _handleFilterDefaultsButton); 
+    var elemDefaultsButton = _makeButton('btnFilterDefaults', ['primary-button'], 'defaults', 'set filters to default values', _handleFilterDefaultsButton); 
     elemContainer.appendChild(elemDefaultsButton);    
     
     var elemTable = document.createElement('table');
@@ -272,7 +315,7 @@ const app = function () {
     elemTitle.innerHTML = 'borders';
     elemContainer.appendChild(elemTitle);
     
-    var elemDefaultsButton = _makeButton('btnBorderDefaults', ['control-button'], 'defaults', 'set borders to default values', _handleBorderDefaultsButton); 
+    var elemDefaultsButton = _makeButton('btnBorderDefaults', ['primary-button'], 'defaults', 'set borders to default values', _handleBorderDefaultsButton); 
     elemContainer.appendChild(elemDefaultsButton);    
     
     var elemTable = document.createElement('table');
@@ -354,15 +397,11 @@ const app = function () {
   //---------------------------------------------------------------
   function _loadImage(n) {
     page.imageelement.src = settings.imageurls[n].url;
-    settings.filtertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
-    settings.bordertextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
-    settings.borderradiustextcontainer.style.marginLeft = settings.imageurls[n].width + 'px';
   }
 
   function _setDefaultValues(settingsToChange) {
     for (var i = 0; i < settingsToChange.length; i++) {
       var params = settingsToChange[i].params;
-      console.log(params);
       
       for (var j=0; j < params.length; j++) {
         params[j].val = params[j].defaultval;
@@ -399,7 +438,8 @@ const app = function () {
     
     filterString += '(';
     for (var i = 0; i < params.length; i++) {
-      filterString += params[i].val + params[i].suffix + ' ';
+      filterString += params[i].val + params[i].suffix;
+      if (i < params.length - 1) filterString += ' ';
     }
     filterString += ')'
     
@@ -440,11 +480,45 @@ const app = function () {
     return borderString;
   }  
   
+  function _doImageUpload(elemPicker) {
+    if (elemPicker.value == '') return;
+    
+    var val = elemPicker.value;
+    var filename = val;
+    if (val.indexOf('/') >= 0) {
+      filename = val.substring(val.lastIndexOf('/')+1);
+    } else if (val.indexOf('\\') >= 0) {
+      filename = val.substring(val.lastIndexOf('\\')+1);
+    }
+    
+    page.uploadedfile.innerHTML = filename;
+    
+    var file = elemPicker.files[0];
+    var reader  = new FileReader();
+
+    reader.onloadend = function () {
+       page.imageelement.src = reader.result;
+    }
+
+    if (file) {
+       reader.readAsDataURL(file); //reads the data as a URL
+    } else {
+       page.imageelement.src = "";
+    }   
+
+    document.getElementById('image_select3').checked = true;    
+  }
+  
 	//------------------------------------------------------------------
 	// handlers
 	//------------------------------------------------------------------
   function _handleImageSelection(e) {
-    _loadImage(e.target.value);
+    if (e.target.value < 3) {
+      _loadImage(e.target.value);
+    } else {
+      _doImageUpload(page.filepicker);
+    }
+    
     _applySelections();
   }
   
@@ -485,8 +559,6 @@ const app = function () {
       settings.bordersettings[filterIndex].params[paramIndex].val = elem.options[elem.selectedIndex].value;
     }
     _applySelections();
-    
-    // console.log('border type change: ' + elem.selectedIndex + ' ' + elem.options[elem.selectedIndex].value);
   }
   
   function _handleFilterDefaultsButton() {
@@ -497,6 +569,10 @@ const app = function () {
   function _handleBorderDefaultsButton() {
     _setDefaultValues(settings.bordersettings);
     _applySelections();
+  }
+  
+  function _handleFilePicker(elem) {
+    _doImageUpload(elem);
   }
   
 	//------------------------------------------------------------------
@@ -598,6 +674,17 @@ const app = function () {
     }
     
     return elemDropdown;
+  }
+  
+  function _makeFilePicker(id, classList, title, name) {
+    var elemFilePicker = document.createElement('input');
+    if (id && id != '') elemFilePicker.id = id;
+    _addClassListToElement(elemFilePicker, classList);
+    elemFilePicker.type = 'file';
+    elemFilePicker.title = title;
+    elemFilePicker.name = name;
+    
+    return elemFilePicker;
   }
 
   function _makeButton(id, classList, label, title, listener) {

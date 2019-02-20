@@ -28,74 +28,84 @@ body {
   background-color: var(--MV-light-teal);
   padding: 2px 2px;
 }
+#all-image-containers {
+  border: 1px solid var(--very-light-gray);
+  border-radius: 6px;
+  padding-right: 8px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
 
 #image-container {
-  float: left;
-  margin-top: 8px;
-  margin-bottom: 10px;
+  padding-left: 6px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 #image {
   height: 150px;
   width: auto;
-  border: 1px solid var(--very-light-gray);
 }
 
-.image-select {}
+#result-text-container {
+  padding-left: 10px;
+  padding-top: 10px;
+}
 
-.image-select-label {}
+#image-selection-container {
+  padding-left: 10px;
+  padding-top: 10px;
+}
 
+#upload-image-container {
+  padding-top: 10px;
+}
 
 .text-container {
-  padding-top: 12px;
   font-size: 14px;
+}
+
+.filepicker {
+  margin-right: 8px;
 }
 
 .text-container-title {
   font-weight: bold;
 }
 
-#filter-container {
-  clear: left;
-  padding-top: 4px;
-  padding-left: 4px;
-  border: 1px solid var(--very-light-gray);
-  border-radius: 6px;  
-}
-
-#border-container {
-  margin-top: 8px;
-  padding-top: 4px;
-  padding-left: 4px;
-  border: 1px solid var(--very-light-gray);
-  border-radius: 6px;
-}
-
-#filter-container-title {
-  font-size: 14px;
-  font-weight: bold;
-  margin-right: 8px;
-}
-
-#border-container-title {
-  font-size: 14px;
-  font-weight: bold;
-  margin-right: 8px;
-}
-
-.control-button {
+.primary-button {
   color: var(--MV-white);
   background-color: var(--MV-light-teal);
   border: 2px solid var(--MV-light-teal);
   border-radius: 6px;
 }
 
-.control-button:disabled, .control-button:hover:disabled {
+.primary-button:disabled, .primary-button:hover:disabled {
   color: var(--very-light-gray);
   background-color: var(--MV-light-gray);
   border: 2px solid var(--MV-light-teal);
 }
 
-.control-button:hover {
+.primary-button:hover {
   border: 2px solid var(--blue);
+}
+
+.secondary-button {
+  color: var(--MV-light-teal);
+  background-color: var(--MV-white);
+  border: 2px solid var(--MV-light-teal);
+  border-radius: 6px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }
