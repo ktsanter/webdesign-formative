@@ -7,70 +7,54 @@ const app = function () {
 	};
 
   const settings = {
-    transformsettings: [
+    displayproperties: {
+      "font-size": {orig: "14px", hover: "18px", transitionclass: "font-size-transition"},
+      "width": {orig: "200px", hover: "300px", transitionclass: "width-transition"},
+      "height": {orig: "120px", hover: "200px", transitionclass: "height-transition"},
+      "background-color": {orig: "#2f8d98", hover: "#0000FF", transitionclass: "background-color-transition"},
+      "opacity": {orig: "1.0", hover: "0.4", transitionclass: "opacity-transition"}      
+    },
+    
+    transitionsettings: [
       { 
-        name: "rotateX", 
+        name: "property", 
         params: [
-          {val: 0, suffix: "deg", minval: -180, maxval: 180, title: "", defaultval: 0}
+          {
+            val: "width", suffix: "", 
+            dropdown: true, 
+            dropdownvals: ["font-size", "width", "height", "background-color", "opacity"],            
+            title: "property which will transition (these can be combined in CSS)",
+            defaultval: "width"
+          }
+        ],                
+      },
+      
+      { 
+        name: "duration", 
+        params: [
+          {val: 0.0, suffix: "s", minval: 0.1, maxval: 7.5, step: 0.1, title: "length in seconds of transition", defaultval: 0.5}
         ] 
       },
       
       { 
-        name: "rotateY", 
+        name: "function", 
         params: [
-          {val: 0, suffix: "deg", minval: -180, maxval: 180, title: "", defaultval: 0}
+          {
+            val: "solid", suffix: "", 
+            dropdown: true, 
+            dropdownvals: ["ease", "ease-in", "ease-out", "ease-in-out", "linear"],            
+            title: "timing function",
+            defaultval: "ease"
+          }
+        ]         
+      },
+      
+      { 
+        name: "delay", 
+        params: [
+          {val: 0.0, suffix: "s", minval: 0.0, maxval: 5.0, step: 0.1, title: "delay before beginning transition", defaultval: 0.0}
         ]
-      },
-      
-      { 
-        name: "rotateZ", 
-        params: [
-          {val: 0, suffix: "deg", minval: -180, maxval: 180, title: "", defaultval: 0}
-        ]
-      },
-      
-      { 
-        name: "translateX", 
-        params: [
-          {val: 0, suffix: "px", minval: -100, maxval: 100, title: "", defaultval: 0}
-        ] 
-      },
-      
-      { 
-        name: "translateY", 
-        params: [
-          {val: 0, suffix: "px", minval: -100, maxval: 100, title: "", defaultval: 0}
-        ]
-      },
-      
-      { 
-        name: "translateZ", 
-        params: [
-          {val: 0, suffix: "px", minval: -100, maxval: 100, title: "", defaultval: 0}
-        ]
-      },
-      
-      { 
-        name: "scale", 
-        params: [
-          {val: 1.0, suffix: "", minval: 0.1, maxval: 2.5, step: 0.1, title: "", defaultval: 1.0}
-        ] 
-      },
-      
-      { 
-        name: "skewX", 
-        params: [
-          {val: 0, suffix: "deg", minval: -180, maxval: 180, title: "", defaultval: 0}
-        ]
-      },
-      
-      { 
-        name: "skewY", 
-        params: [
-          {val: 0, suffix: "deg", minval: -180, maxval: 180, title: "", defaultval: 0}
-        ]
-      }
-      
+      }      
     ]
   };
 
@@ -103,8 +87,17 @@ const app = function () {
     elemTopRow.appendChild(_makeResultTextContainer());
     page.contents.appendChild(elemTopRow);
         
-    page.contents.appendChild(_makeEffectControlsContainer(settings.transformsettings, 'transform', _handleTransformDefaultsButton));
-    _setDefaultValues(settings.transformsettings);
+    page.contents.appendChild(_makeEffectControlsContainer(settings.transitionsettings, 'transition', _handleTransitionDefaultsButton));
+    // force checkboxes to be selected and hide them
+    var checkboxElements = document.getElementsByClassName('transition-select');
+    for (var i = 0; i < checkboxElements.length; i++) {
+      var elem = checkboxElements[i];
+      elem.checked = true;
+      elem.style.display = 'none';
+    }
+    
+    _setDefaultValues(settings.transitionsettings);
+    _applySelections();
   }	
     
   function _makeDisplayEffectsContainer() {
@@ -114,7 +107,7 @@ const app = function () {
     page.effectsdiv = elemEffectsDiv;
     elemContainer.appendChild(elemEffectsDiv);
     
-    elemEffectsDiv.innerHTML = 'effects';
+    elemEffectsDiv.innerHTML = '';
     
     return elemContainer;
   }
@@ -122,7 +115,7 @@ const app = function () {
   function _makeResultTextContainer() {
     var elemContainer = _makeDiv('result-text-container', []);
     
-    elemContainer.appendChild(_makeEffectTextContainer('transform'));
+    elemContainer.appendChild(_makeEffectTextContainer('transition'));
     
     return elemContainer;
   }
@@ -226,36 +219,56 @@ const app = function () {
     }
   }
   
-  function _applySelections() {
-    _applySelectedTransforms();
+  function _setDisplayEffectsProperties() {    
+    var transitionProperty = settings.transitionsettings[0].params[0].val;
+    var origval = settings.displayproperties[transitionProperty].orig;
+    var hoverval = settings.displayproperties[transitionProperty].hover;
+    var className = settings.displayproperties[transitionProperty].transitionclass;
+    
+    var strEffects = '<b>Hover to test the transition</b><br>';
+    strEffects += 'property: <i>' + transitionProperty + '</i><br>';
+    strEffects += 'original: <i>' + origval + '</i><br>';
+    strEffects += 'hover: <i>' + hoverval + '</i>';
+    page.effectsdiv.innerHTML = strEffects;
+    
+    _removeClassFromElement(page.effectsdiv, settings.displayproperties['font-size'].transitionclass);
+    _removeClassFromElement(page.effectsdiv, settings.displayproperties['width'].transitionclass);
+    _removeClassFromElement(page.effectsdiv, settings.displayproperties['height'].transitionclass);
+    _removeClassFromElement(page.effectsdiv, settings.displayproperties['background-color'].transitionclass);
+    _removeClassFromElement(page.effectsdiv, settings.displayproperties['opacity'].transitionclass);
+
+    page.effectsdiv.classList.add(className);
   }
   
-  function _applySelectedTransforms() {
+  function _applySelections() {
+    _setDisplayEffectsProperties(settings.transitionsettings);
+    _applySelectedTransitions();
+  }
+  
+  function _applySelectedTransitions() {
     var effectString = '';
-    var elems = document.getElementsByClassName('transform-select');
-    
+    var elems = document.getElementsByClassName('transition-select');
+    console.log(elems.length);
     for (var i = 0; i < elems.length; i++) {
       if (elems[i].checked) {
-        effectString += _buildTransformString(settings.transformsettings[i]) + ' '
+        effectString += _buildTransitionString(settings.transitionsettings[i]) + ' '
       }
     }
     
-    page.transformtext.innerHTML = effectString;
-    page.effectsdiv.style.transform = effectString;
+    page.transitiontext.innerHTML = effectString;
+    page.effectsdiv.style.transition = effectString;
   }
   
-  function _buildTransformString(transformSetting) {
-    var transformString = transformSetting.name;
-    var params = transformSetting.params;
+  function _buildTransitionString(transitionSetting) {
+    var transitionString = '';
+    var params = transitionSetting.params;
     
-    transformString += '(';
     for (var i = 0; i < params.length; i++) {
-      transformString += params[i].val + params[i].suffix;
-      if (i < params.length - 1) transformString += ' ';
+      transitionString += params[i].val + params[i].suffix;
+      if (i < params.length - 1) transitionString += ' ';
     }
-    transformString += ')'
     
-    return transformString;
+    return transitionString;
   }
   
 	//------------------------------------------------------------------
@@ -291,8 +304,8 @@ const app = function () {
     _applySelections();
   }
 
-  function _handleTransformDefaultsButton() {
-    _setDefaultValues(settings.transformsettings);
+  function _handleTransitionDefaultsButton() {
+    _setDefaultValues(settings.transitionsettings);
     _applySelections();
   }
   
@@ -422,6 +435,12 @@ const app = function () {
   function _addClassListToElement(elem, classList) {
     for (var i = 0; i < classList.length; i++) {
       elem.classList.add(classList[i]);
+    }
+  }
+  
+  function _removeClassFromElement(elem, className) {
+    if (elem.classList.contains(className)) {
+      elem.classList.remove(className);
     }
   }
 
