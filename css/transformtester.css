@@ -90,6 +90,10 @@ body {
   font-weight: bold;
 }
 
+.effect-container-title {
+  font-weight: bold;
+}
+
 .primary-button {
   color: var(--MV-white);
   background-color: var(--MV-light-teal);
@@ -112,6 +116,13 @@ body {
   background-color: var(--MV-white);
   border: 2px solid var(--MV-light-teal);
   border-radius: 6px;
+}
+
+.defaults-button {
+  font-size: 10px;
+  margin-left: 8px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 .flex-container {

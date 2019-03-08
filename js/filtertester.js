@@ -290,11 +290,11 @@ const app = function () {
   function _makeFilterContainer() {
     var elemContainer = _makeDiv('filter-container', []);
     
-    var elemTitle = _makeSpan('filter-container-title', []);
+    var elemTitle = _makeSpan('filter-container-title', ['effect-container-title']);
     elemTitle.innerHTML = 'filters';
     elemContainer.appendChild(elemTitle);
     
-    var elemDefaultsButton = _makeButton('btnFilterDefaults', ['primary-button'], 'defaults', 'set filters to default values', _handleFilterDefaultsButton); 
+    var elemDefaultsButton = _makeButton('btnFilterDefaults', ['primary-button', 'defaults-button'], 'defaults', 'set filters to default values', _handleFilterDefaultsButton); 
     elemContainer.appendChild(elemDefaultsButton);    
     
     var elemTable = document.createElement('table');
@@ -311,11 +311,11 @@ const app = function () {
   function _makeBorderContainer() {
     var elemContainer = _makeDiv('border-container', []);
     
-    var elemTitle = _makeSpan('border-container-title', []);
+    var elemTitle = _makeSpan('border-container-title', ['effect-container-title']);
     elemTitle.innerHTML = 'borders';
     elemContainer.appendChild(elemTitle);
     
-    var elemDefaultsButton = _makeButton('btnBorderDefaults', ['primary-button'], 'defaults', 'set borders to default values', _handleBorderDefaultsButton); 
+    var elemDefaultsButton = _makeButton('btnBorderDefaults', ['primary-button', 'defaults-button'], 'defaults', 'set borders to default values', _handleBorderDefaultsButton); 
     elemContainer.appendChild(elemDefaultsButton);    
     
     var elemTable = document.createElement('table');

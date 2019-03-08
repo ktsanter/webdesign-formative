@@ -146,11 +146,11 @@ const app = function () {
   function _makeEffectControlsContainer(effectSettings, effectTypeName, defaultButtonHandler) {
     var elemContainer = _makeDiv(effectTypeName + '-container', []);
     
-    var elemTitle = _makeSpan(effectTypeName + '-container-title', []);
+    var elemTitle = _makeSpan(effectTypeName + '-container-title', ['effect-container-title']);
     elemTitle.innerHTML = effectTypeName + 's';
     elemContainer.appendChild(elemTitle);
     
-    var elemDefaultsButton = _makeButton('btn' + effectTypeName + 'Defaults', ['primary-button'], 'defaults', 'set effects to default values', defaultButtonHandler); 
+    var elemDefaultsButton = _makeButton('btn' + effectTypeName + 'Defaults', ['primary-button', 'defaults-button'], 'defaults', 'set effects to default values', defaultButtonHandler); 
     elemContainer.appendChild(elemDefaultsButton);    
     
     var elemTable = document.createElement('table');
@@ -364,7 +364,6 @@ const app = function () {
     elemRange.max = maxval;
     elemRange.value = value;
     if (step != undefined) elemRange.step = step;
-    console.log(title + ' ' + step);
     
     return elemRange;
   }
