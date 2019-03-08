@@ -53,7 +53,7 @@ const app = function () {
       { 
         name: "scale", 
         params: [
-          {val: 1.0, suffix: "", minval: 0.5, maxval: 3.0, title: "", defaultval: 1.0}
+          {val: 1.0, suffix: "", minval: 0.1, maxval: 2.5, step: 0.1, title: "", defaultval: 1.0}
         ] 
       },
       
@@ -199,7 +199,7 @@ const app = function () {
         elemControlToAdd = elemDropdown;
         
       }else {  
-        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.defaultval);
+        var elemRange = _makeRange(rId, [], param.title  , param.minval, param.maxval, param.defaultval, param.step);
         elemRange.oninput = function() { _handleRangeChange(this); };
         elemControlToAdd = elemRange;
       }
@@ -354,7 +354,7 @@ const app = function () {
     return elemCheckbox;
   }
 
-  function _makeRange(id, classList, title, minval, maxval, value) {
+  function _makeRange(id, classList, title, minval, maxval, value, step) {
     var elemRange = document.createElement('input');
     if (id && id != '') elemRange.id = id;
     _addClassListToElement(elemRange, classList);
@@ -363,6 +363,8 @@ const app = function () {
     elemRange.min = minval;
     elemRange.max = maxval;
     elemRange.value = value;
+    if (step != undefined) elemRange.step = step;
+    console.log(title + ' ' + step);
     
     return elemRange;
   }
